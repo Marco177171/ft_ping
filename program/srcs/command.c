@@ -22,27 +22,29 @@ void parse_flags(t_request *request, const char *flag_string) {
 
 void switch_flags_on(t_request *request) {
 	int i = 1;
-	
-	while (request->flag_string[i]) {
-		if (request->flag_string[i] == 'f')
-			request->flags->flood = 1;
-		else if (request->flag_string[i] == 'l')
-			request->flags->preload = 1;
-		else if (request->flag_string[i] == 'n')
-			request->flags->numeric = 1;
-		else if (request->flag_string[i] == 'w')
-			request->flags->deadline = 1;
-		else if (request->flag_string[i] == 'W')
-			request->flags->timeout = 1;
-		else if (request->flag_string[i] == 'p')
-			request->flags->pattern = 1;
-		else if (request->flag_string[i] == 'r')
-			request->flags->bypass_routing = 1;
-		else if (request->flag_string[i] == 's')
-			request->flags->packetsize = 1;
-		else if (request->flag_string[i] == 'T')
-			request->flags->timestamp = 1;
-		i++;
+
+	if (request->flag_string) {
+		while (request->flag_string[i]) {
+			if (request->flag_string[i] == 'f')
+				request->flags->flood = 1;
+			else if (request->flag_string[i] == 'l')
+				request->flags->preload = 1;
+			else if (request->flag_string[i] == 'n')
+				request->flags->numeric = 1;
+			else if (request->flag_string[i] == 'w')
+				request->flags->deadline = 1;
+			else if (request->flag_string[i] == 'W')
+				request->flags->timeout = 1;
+			else if (request->flag_string[i] == 'p')
+				request->flags->pattern = 1;
+			else if (request->flag_string[i] == 'r')
+				request->flags->bypass_routing = 1;
+			else if (request->flag_string[i] == 's')
+				request->flags->packetsize = 1;
+			else if (request->flag_string[i] == 'T')
+				request->flags->timestamp = 1;
+			i++;
+		}
 	}
 }
 
@@ -84,8 +86,8 @@ void dns_lookup(t_request *request, char *address_string) {
 
 	// se la stringa rappresenta un IP...
 	if (is_ip(address_string)) {
-		request->domain_name = strdup(address_string);
-		printf("IP address: %s\n", request->domain_name);
+		request->target_ip = strdup(address_string);
+		printf("IP address: %s\n", request->target_ip);
 	}
 	
 	// se la string rappresenta il nome di un Dominio...
@@ -96,7 +98,7 @@ void dns_lookup(t_request *request, char *address_string) {
 
 	// torna errore se non valida
 	else {
-		printf("ping: %s: Name or service not known", address_string);
+		printf("ping: %s: Name or service not known\n", address_string);
 		free_request(request);
 		exit(1);
 	}

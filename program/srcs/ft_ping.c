@@ -32,15 +32,7 @@ typedef struct s_ping_settings {
 	t_ping_pkt *packet;
 } t_ping_settings;
 
-
-
 int main(int argc, char **argv) {
-
-	// int sockfd;
-	// struct sockaddr_in address;
-	// int address_len = sizeof(address);
-	// char net_buffer[NI_MAXHOST]; // NI_MAXHOST usually 1025
-
 	if (argc == 1) {
 		perror("ERROR: usage : ./ft_ping [options] [target_ip]. Exiting...\n");
 		exit(1);
@@ -53,8 +45,6 @@ int main(int argc, char **argv) {
 	}
 
 	init_request(request);
-
-	// trova le flag, salvale nella struttura
 	parse_command(request, argv);
 
 	free_request(request);
