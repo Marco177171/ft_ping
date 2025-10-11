@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "*.embeddedhtml": "html",
+        "ft_general.h": "c",
+        "stdlib.h": "c",
+        "string.h": "c"
+    }
+}
