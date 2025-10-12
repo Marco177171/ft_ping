@@ -32,7 +32,6 @@ void parse_command(t_request *request, char **argv);
 void parse_flags(t_request *request, const char *flag_string);
 void switch_flags_on(t_request *request);
 void free_request(t_request *request);
-
-void dns_lookup(t_request *request, char *address_string);
+void parse_target(t_request *request, char *address_string);
 
 #endif

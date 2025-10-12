@@ -4,12 +4,12 @@ void parse_flags(t_request *request, const char *flag_string) {
 	printf("Saving flags...\n");
 	if (!strcmp(flag_string, "--ttl")) {
 		request->flags->ttl = 1;
-		printf("TTL option set.\n");
+		printf("[FT_PING] TTL option set.\n");
 		return ;
 	}
 	if (!strcmp(flag_string, "--ip-timestamp")) {
 		request->flags->ip_timestamp = 1;
-		printf("IP TIMESTAMP option set.\n");
+		printf("[FT_PING] IP TIMESTAMP option set.\n");
 		return ;
 	}
 	if (!request->flag_string) {
@@ -17,7 +17,7 @@ void parse_flags(t_request *request, const char *flag_string) {
 		return ;
 	}
 	request->flag_string = strcat(request->flag_string, flag_string);
-	printf("Saved flag_string: %s\n", request->flag_string);
+	printf("[FT_PING] Saved flag_string: %s\n", request->flag_string);
 }
 
 void switch_flags_on(t_request *request) {
@@ -68,8 +68,8 @@ void init_request(t_request *request) {
 	request->flag_string = NULL;
 	request->target_ip = NULL;
 	request->reverse_hostname = NULL;
-
 	request->flags = malloc(sizeof(t_ping_flags));
+
 	request->flags->ttl = 0;
 	request->flags->ip_timestamp = 0;
 	request->flags->flood = 0;
@@ -82,23 +82,22 @@ void init_request(t_request *request) {
 	request->flags->timestamp = 0;
 }
 
-void dns_lookup(t_request *request, char *address_string) {
-
+void parse_target(t_request *request, char *address_string) {
 	// se la stringa rappresenta un IP...
 	if (is_ip(address_string)) {
 		request->target_ip = strdup(address_string);
-		printf("IP address: %s\n", request->target_ip);
+		printf("[FT_PING] IP address: %s\n", request->target_ip);
 	}
-	
+
 	// se la string rappresenta il nome di un Dominio...
 	else if (is_domain_name(address_string)) {
 		request->domain_name = strdup(address_string);
-		printf("Domain name set in structure: %s\n", request->domain_name);
+		printf("[FT_PING] Domain name set in structure: %s\n", request->domain_name);
 	}
 
 	// torna errore se non valida
 	else {
-		printf("ping: %s: Name or service not known\n", address_string);
+		printf("[FT_PING] ping: %s: Name or service not known\n", address_string);
 		free_request(request);
 		exit(1);
 	}
@@ -111,7 +110,7 @@ void parse_command(t_request *request, char **argv) {
 			parse_flags(request, argv[i]);
 		else if (!argv[i + 1]) {
 			// esegui un dns lookup sull'argomento. Aggiorna la struttura
-			dns_lookup(request, argv[i]);
+			parse_target(request, argv[i]);
 			// request->target_ip = strdup(argv[i]);
 			// printf("Target: %s\n", request->target_ip);
 		}

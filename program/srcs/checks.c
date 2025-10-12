@@ -5,7 +5,7 @@ int is_ip(char *string) {
 	while (string[i]) {
 		printf("checking %c\n", string[i]);
 		if ((!isdigit(string[i]) && string[i] != '.') || dots > 3) {
-			printf("Not an IP (invalid characters). Returning...\n");
+			printf("[FT_PING] Not an IP (invalid characters). Returning...\n");
 			return 0;
 		}
 		if (string[i] == '.')
@@ -27,9 +27,9 @@ int is_domain_name(char *address_string) {
 		i++;
 	}
 	if (dots == 0) {
-		printf("No dots in provided string. It's not a valid domain name\n");
+		printf("[FT_PING] No dots in provided string. It's not a valid domain name\n");
 		return 0;
 	}
-	printf("%s is a valid domain name\n", address_string);
+	printf("[FT_PING] %s is a valid domain name\n", address_string);
 	return 1;
 }

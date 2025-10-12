@@ -25,22 +25,22 @@ typedef struct s_ping_pkt {
 } t_ping_pkt;
 
 typedef struct s_ping_settings {
-	int packet_size; // 64 by default
-	int port; // 64 by default
-	int ping_sleep_rate; // 1000000 microseconds bby default
-	int receive_timeout; // 1 by default
+	int packet_size;		// 64 by default
+	int port;				// 64 by default
+	int ping_sleep_rate;	// 1000000 microseconds bby default
+	int receive_timeout;	// 1 by default
 	t_ping_pkt *packet;
 } t_ping_settings;
 
 int main(int argc, char **argv) {
 	if (argc == 1) {
-		perror("ERROR: usage : ./ft_ping [options] [target_ip]. Exiting...\n");
+		perror("[FT_PING] ERROR: usage : ./ft_ping [options] [target_ip]. Exiting...\n");
 		exit(1);
 	}
 
 	t_request *request = malloc(sizeof(t_request));
 	if (!request) {
-		perror("ERROR: could not allocate request structure");
+		perror("[FT_PING] ERROR: could not allocate request structure");
 		exit(1);
 	}
 
