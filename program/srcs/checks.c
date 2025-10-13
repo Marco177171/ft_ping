@@ -3,7 +3,6 @@
 int is_ip(char *string) {
 	int i = 0, dots = 0;
 	while (string[i]) {
-		printf("checking %c\n", string[i]);
 		if ((!isdigit(string[i]) && string[i] != '.') || dots > 3) {
 			printf("[FT_PING] Not an IP (invalid characters). Returning...\n");
 			return 0;
@@ -12,7 +11,7 @@ int is_ip(char *string) {
 			dots++;
 		i++;
 	}
-	printf("%s is an IP\n", string);
+	printf("[FT_PING] %s is an IP\n", string);
 	return 1;
 }
 

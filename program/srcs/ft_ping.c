@@ -13,24 +13,11 @@
 // Request Timed Out i.e. no reply
 // Unknown Host
 
-// The Internet Ping program works much like a sonar echo-location, 
-// sending a small packet of information containing an ICMP ECHO_REQUEST 
-// to a specified computer, which then sends an ECHO_REPLY packet in return. 
+// The Internet Ping program works much like a sonar echo-location,
+// sending a small packet of information containing an ICMP ECHO_REQUEST
+// to a specified computer, which then sends an ECHO_REPLY packet in return.
 
 #include <ft_ping.h>
-
-typedef struct s_ping_pkt {
-	struct icmphdr hdr;
-	char msg[64 - sizeof(struct icmphdr)];
-} t_ping_pkt;
-
-typedef struct s_ping_settings {
-	int packet_size;		// 64 by default
-	int port;				// 64 by default
-	int ping_sleep_rate;	// 1000000 microseconds bby default
-	int receive_timeout;	// 1 by default
-	t_ping_pkt *packet;
-} t_ping_settings;
 
 int main(int argc, char **argv) {
 	if (argc == 1) {
@@ -46,6 +33,8 @@ int main(int argc, char **argv) {
 
 	init_request(request);
 	parse_command(request, argv);
+	
+	perform_request(request);
 
 	free_request(request);
 	return 0;

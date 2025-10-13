@@ -3,6 +3,8 @@
         "*.embeddedhtml": "html",
         "ft_general.h": "c",
         "stdlib.h": "c",
-        "string.h": "c"
+        "string.h": "c",
+        "command.h": "c",
+        "ft_ping.h": "c"
     }
 }

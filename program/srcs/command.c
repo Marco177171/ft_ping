@@ -1,7 +1,7 @@
 #include <command.h>
 
 void parse_flags(t_request *request, const char *flag_string) {
-	printf("Saving flags...\n");
+	printf("[FT_PING] Parsing flags...\n");
 	if (!strcmp(flag_string, "--ttl")) {
 		request->flags->ttl = 1;
 		printf("[FT_PING] TTL option set.\n");
