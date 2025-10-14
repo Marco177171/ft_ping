@@ -22,13 +22,13 @@
 int main(int argc, char **argv) {
 	if (argc == 1) {
 		perror("[FT_PING] ERROR: usage : ./ft_ping [options] [target_ip]. Exiting...\n");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	t_request *request = malloc(sizeof(t_request));
 	if (!request) {
 		perror("[FT_PING] ERROR: could not allocate request structure");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	init_request(request);

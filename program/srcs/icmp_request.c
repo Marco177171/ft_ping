@@ -39,27 +39,86 @@ char *dns_lookup(t_request *request, struct sockaddr_in *sock_address) {
 	return ip;
 }
 
+char *reverse_dns_lookup(t_request *request) {
+    printf("[FT_PING] Reverse DNS lookup called...\n");
+
+	struct sockaddr_in temp;
+
+	temp.sin_family = AF_INET;
+	temp.sin_addr.s_addr = inet_addr(request->target_ip);
+	socklen_t len = sizeof(struct sockaddr_in);
+
+	char buffer[1025];
+	
+	if (getnameinfo((struct sockaddr *)&temp, len, buffer, sizeof(buffer), NULL, 0, NI_NAMEREQD)) {
+        printf("[FT_PING] ERROR : Could not resolve reverse lookup for \"%s\"\n", request->domain_name);
+        return NULL;
+    }
+
+	char *result = malloc(sizeof(char) * (strlen(buffer) + 1));
+	if (!result) {
+		printf("[FT_PING] ERROR : Could not allocate result string. Returning (null)...\n");
+		return NULL;
+	}
+
+	strcpy(result, buffer);
+	return result;
+}
+
 void perform_request(t_request *request) {
-	(void)request;
-	// int sockfd;
-	// char *ip_addr, *reverse_hostname; -> use request's fields
-	struct sockaddr_in *sock_address = malloc(sizeof(struct sockaddr_in *));
+    struct sockaddr_in *sock_address = malloc(sizeof(struct sockaddr_in *));
+    if (!sock_address) {
+        printf("[FT_PING] ERROR : Could not allocate sockaddr_in* struct for socket address. Exiting...");
+        free_request(request);
+        exit(EXIT_FAILURE);
+    }
+
+	// sock_address->sin_addr.s_addr = NULL;
+	// sock_address->sin_family = NULL;
+	// sock_address->sin_port = 0;
+	// sock_address->sin_zero = 0;
+
 	// int addrlen = sizeof(sock_address);
 	// char net_buf[1024]; // 1024 = default for NI_MAX_HOST
 
 	if (!request->target_ip) {
 		request->target_ip = dns_lookup(request, sock_address);
 		if (!request->target_ip) {
-			printf("[FT_PING] dns_lookup() returned nothing. Exiting...\n");
+			printf("[FT_PING] ERROR : dns_lookup() returned nothing. Exiting...\n");
+			free(sock_address);
 			free_request(request);
-			exit(1);
+			exit(EXIT_FAILURE);
 		}
 	}
 
 	printf("[FT_PING] -> Socket struct populated.\n");
-	printf("[FT_PING] Socket\t\t: %d\n", sock_address->sin_addr.s_addr);
+	printf("[FT_PING] Socket address\t: %d\n", sock_address->sin_addr.s_addr);
 	printf("[FT_PING] Socket family\t\t: %d\n", sock_address->sin_family);
 	printf("[FT_PING] Socket port\t\t: %d\n", sock_address->sin_port);
+
+    if (!request->reverse_hostname) {
+        request->reverse_hostname = reverse_dns_lookup(request);
+        if (!request->reverse_hostname) {
+            printf("[FT_PING] ERROR : reverse_dns_lookup() returned nothing. Exiting...\n");
+			free(sock_address);
+            free_request(request);
+            exit(EXIT_FAILURE);
+        }
+    }
+
+	int sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
+	printf("[FT_PING] SOCKET: %d\n", sockfd);
+	if (sockfd < 0) {
+		printf("[FT_PING] SOCKET ERROR : Could not create a file descriptor. Exiting...\n");
+		free(sock_address);
+		free_request(request);
+		exit(EXIT_FAILURE);
+	}
+	else {
+		printf("[FT_PING] Newly created socket received file descrptor # %d\n", sockfd);
+	}
+
+    // The socket can now be used to send the request
 
 	free(sock_address);
 }

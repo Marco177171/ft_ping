@@ -99,7 +99,7 @@ void parse_target(t_request *request, char *address_string) {
 	else {
 		printf("[FT_PING] ping: %s: Name or service not known\n", address_string);
 		free_request(request);
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 }
 
