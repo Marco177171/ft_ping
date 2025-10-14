@@ -25,12 +25,12 @@ char *dns_lookup(t_request *request, struct sockaddr_in *sock_address) {
 		free(ip);
 		return NULL;
 	}
-	
+
 	printf("[FT_PING] -> Host entity found.\n");
 	printf("[FT_PING] Address type\t\t: %d\n", host_entity->h_addrtype);
 	printf("[FT_PING] Address list[1]\t: %s\n", host_entity->h_addr_list[1]);
 	printf("[FT_PING] Address list ld\t: %ld\n", *(long *)host_entity->h_addr_list);
-	
+
 	strcpy(ip, inet_ntoa(*(struct in_addr *)host_entity->h_addr_list));
 	(*sock_address).sin_family = host_entity->h_addrtype;
 	(*sock_address).sin_port = htons(0); // PORT_NO (default = 0). Maybe create a global var
@@ -39,19 +39,19 @@ char *dns_lookup(t_request *request, struct sockaddr_in *sock_address) {
 	return ip;
 }
 
-char *reverse_dns_lookup(t_request *request) {
+char *reverse_dns_lookup(char *ip) {
     printf("[FT_PING] Reverse DNS lookup called...\n");
 
 	struct sockaddr_in temp;
 
 	temp.sin_family = AF_INET;
-	temp.sin_addr.s_addr = inet_addr(request->target_ip);
+	temp.sin_addr.s_addr = inet_addr(ip);
 	socklen_t len = sizeof(struct sockaddr_in);
 
 	char buffer[1025];
 	
 	if (getnameinfo((struct sockaddr *)&temp, len, buffer, sizeof(buffer), NULL, 0, NI_NAMEREQD)) {
-        printf("[FT_PING] ERROR : Could not resolve reverse lookup for \"%s\"\n", request->domain_name);
+        printf("[FT_PING] ERROR : Could not resolve reverse lookup for \"%s\"\n", ip);
         return NULL;
     }
 
@@ -89,6 +89,7 @@ void perform_request(t_request *request) {
 			free_request(request);
 			exit(EXIT_FAILURE);
 		}
+		printf("[FT_PING] target ip of the target : %s\n", request->target_ip);
 	}
 
 	printf("[FT_PING] -> Socket struct populated.\n");
@@ -97,7 +98,7 @@ void perform_request(t_request *request) {
 	printf("[FT_PING] Socket port\t\t: %d\n", sock_address->sin_port);
 
     if (!request->reverse_hostname) {
-        request->reverse_hostname = reverse_dns_lookup(request);
+        request->reverse_hostname = reverse_dns_lookup(request->target_ip);
         if (!request->reverse_hostname) {
             printf("[FT_PING] ERROR : reverse_dns_lookup() returned nothing. Exiting...\n");
 			free(sock_address);
