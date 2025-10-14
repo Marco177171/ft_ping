@@ -66,7 +66,7 @@ char *reverse_dns_lookup(t_request *request) {
 }
 
 void perform_request(t_request *request) {
-    struct sockaddr_in *sock_address = malloc(sizeof(struct sockaddr_in *));
+    struct sockaddr_in *sock_address = malloc(sizeof(struct sockaddr_in));
     if (!sock_address) {
         printf("[FT_PING] ERROR : Could not allocate sockaddr_in* struct for socket address. Exiting...");
         free_request(request);
