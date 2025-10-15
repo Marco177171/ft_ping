@@ -17,19 +17,18 @@ char *dns_lookup(t_request *request, struct sockaddr_in *sock_address) {
 	// populate request address field:
 	printf("[FT_PING] DNS resolver called...\n");
 
-	struct hostent *host_entity;
-	char *ip = malloc(sizeof(char) * 1024);
-
-	host_entity = gethostbyname(request->domain_name);
-	if (!host_entity) {
-		free(ip);
+	struct hostent *host_entity = gethostbyname(request->domain_name);
+	if (!host_entity)
 		return NULL;
-	}
 
 	printf("[FT_PING] -> Host entity found.\n");
 	printf("[FT_PING] Address type\t\t: %d\n", host_entity->h_addrtype);
 	printf("[FT_PING] Address list[1]\t: %s\n", host_entity->h_addr_list[1]);
 	printf("[FT_PING] Address list ld\t: %ld\n", *(long *)host_entity->h_addr_list);
+
+	char *ip = malloc(sizeof(char) * 1024);
+	if (!ip)
+		return NULL;
 
 	strcpy(ip, inet_ntoa(*(struct in_addr *)host_entity->h_addr_list));
 	(*sock_address).sin_family = host_entity->h_addrtype;
@@ -115,11 +114,8 @@ void perform_request(t_request *request) {
 		free_request(request);
 		exit(EXIT_FAILURE);
 	}
-	else {
+	else
 		printf("[FT_PING] Newly created socket received file descrptor # %d\n", sockfd);
-	}
-
-    // The socket can now be used to send the request
 
 	free(sock_address);
 }
