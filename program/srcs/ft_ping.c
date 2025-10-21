@@ -21,7 +21,7 @@
 
 int main(int argc, char **argv) {
 	if (argc == 1) {
-		perror("[FT_PING] ERROR: usage : ./ft_ping [options] [target_ip]. Exiting...\n");
+		perror("[FT_PING] ERROR: usage : ./ft_ping [options] [target ip / domain name]. Exiting...\n");
 		exit(EXIT_FAILURE);
 	}
 

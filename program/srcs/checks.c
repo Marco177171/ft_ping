@@ -20,7 +20,7 @@ int is_domain_name(char *address_string) {
 	while (address_string[i]) {
 		if (!isalnum(address_string[i]) &&
 			address_string[i] != '.')
-				return 0;
+			return 0;
 		if (address_string[i] == '.')
 			dots++;
 		i++;
