@@ -3,6 +3,7 @@
 
 #include <general.h>
 #include <command.h>
+#include <dns_resolver.h>
 
 void perform_request(t_request *request);
 
