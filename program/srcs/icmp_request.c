@@ -31,10 +31,31 @@ void signal_handler() {
     ping_loop = 0; 
 }
 
+void print_statistics(t_request *request) {
+	if (request->domain_name)
+		printf("--- %s ping statistics ---\n", request->domain_name);
+	else
+		printf("--- %s ping statistics ---\n", request->target_ip);
+	
+	printf("3 packets transmitted, 3 received, 0%% packet loss, time 2003ms\n");
+	printf("rtt min/avg/max/mdev = 6.755/8.033/10.003/1.413 ms\n");
+}
+
 // Make a ping request
 void ping_cycle(t_request *request, int sockfd) {
     printf("[FT_PING] Starting ping cycle on FD %d\n", sockfd);
 	signal(SIGINT, signal_handler);
+
+	if (request->domain_name) {
+		printf("PING %s (%s) 56(84) bytes of data.\n", 
+			request->reverse_hostname, 
+			request->target_ip);
+	}
+	else {
+		printf("PING %s (%s) 56(84) bytes of data.", 
+			request->target_ip, 
+			request->target_ip);
+	}
 
 	while (ping_loop) {
 		printf("%s bytes from %s (%s): icmp_seq=1 ttl=%s time=%s ms\n", 
@@ -42,9 +63,10 @@ void ping_cycle(t_request *request, int sockfd) {
 			request->reverse_hostname,
 			request->target_ip,
 			"62", // ttl value
-			"2.00 ms"); // ping response time
+			"2.00"); // ping response time
 		sleep(1);
 	}
+	print_statistics(request);
 }
 
 void perform_request(t_request *request) {	
