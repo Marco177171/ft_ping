@@ -31,14 +31,14 @@ void signal_handler() {
     ping_loop = 0; 
 }
 
-void print_statistics(t_request *request, double avg) {
+void print_statistics(t_request *request, double min, double avg, double max) {
 	if (request->domain_name)
-		printf("--- %s ping statistics ---\n", request->domain_name);
+		printf("\n--- %s ping statistics ---\n", request->domain_name);
 	else
-		printf("--- %s ping statistics ---\n", request->target_ip);
+		printf("\n--- %s ping statistics ---\n", request->target_ip);
 	
 	printf("3 packets transmitted, 3 received, 0%% packet loss, time 2003ms\n");
-	printf("rtt min/avg/max/mdev = 6.755/%f/10.003/1.413 ms\n", avg);
+	printf("rtt min/avg/max/mdev = %f/%f/%f/1.413 ms\n", min, avg, max);
 }
 
 // Make a ping request
@@ -66,21 +66,25 @@ void ping_cycle(t_request *request, int sockfd) {
 	}
 	
 	clock_t start, end;
-	double duration = 0, total = 0, avg = 0;
+	double duration = 0, total = 0, avg = 0, min = 0, max = 0;
 	int sequence = 1;
 	
 	while (ping_loop) {
-		start = clock();
-		// set time = current_time
+		start = clock(); // set time = current_time
 		// send ping
 		// receive response
-		// count the time it took to receive the response
+		end = clock(); // count the time it took to receive the response
+		
 		// catch errors
-		// print current cycle's stats
-
-		end = clock();
+		
 		duration = (double)(end - start);
 		total += duration;
+		if (duration < min || sequence == 1)
+			min = duration;
+		if (duration > max || sequence == 1)
+			max = duration;
+
+		// print current cycle's stats
 		printf("%s bytes from %s (%s): icmp_seq=%d ttl=%s time=%f ms\n", 
 			"64", // packet size!!
 			request->reverse_hostname,
@@ -92,7 +96,7 @@ void ping_cycle(t_request *request, int sockfd) {
 		sequence++;
 	}
 	avg = total / sequence;
-	print_statistics(request, avg);
+	print_statistics(request, min, avg, max);
 }
 
 void perform_request(t_request *request) {	
