@@ -5,7 +5,7 @@
 #include <checks.h>
 
 typedef struct s_ping_flags {
-	int ttl;
+	int ttl;			// default = 46 -> amount of router jumps the packet can do before error
 	int ip_timestamp;
 	int flood;
 	int preload;
@@ -14,7 +14,7 @@ typedef struct s_ping_flags {
 	int timeout;
 	int pattern;
 	int bypass_routing;
-	int packetsize;
+	int packetsize;		// default = 64
 	int timestamp;
 } t_ping_flags;
 

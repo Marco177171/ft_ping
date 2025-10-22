@@ -31,21 +31,20 @@ void signal_handler() {
     ping_loop = 0; 
 }
 
-void print_statistics(t_request *request) {
+void print_statistics(t_request *request, double avg) {
 	if (request->domain_name)
 		printf("--- %s ping statistics ---\n", request->domain_name);
 	else
 		printf("--- %s ping statistics ---\n", request->target_ip);
 	
 	printf("3 packets transmitted, 3 received, 0%% packet loss, time 2003ms\n");
-	printf("rtt min/avg/max/mdev = 6.755/8.033/10.003/1.413 ms\n");
+	printf("rtt min/avg/max/mdev = 6.755/%f/10.003/1.413 ms\n", avg);
 }
 
 // Make a ping request
 void ping_cycle(t_request *request, int sockfd) {
     printf("[FT_PING] Starting ping cycle on FD %d\n", sockfd);
-	signal(SIGINT, signal_handler);
-
+	
 	if (request->domain_name) {
 		printf("PING %s (%s) 56(84) bytes of data.\n", 
 			request->reverse_hostname, 
@@ -56,17 +55,44 @@ void ping_cycle(t_request *request, int sockfd) {
 			request->target_ip, 
 			request->target_ip);
 	}
+		
+	signal(SIGINT, signal_handler);
 
+	t_ping_pkt *packet = malloc(sizeof(t_ping_pkt));
+	if (!packet) {
+		printf("[FT_PING] ERROR : could not allocate ping packet.\n");
+		free_request(request);
+		exit(EXIT_FAILURE);
+	}
+	
+	clock_t start, end;
+	double duration = 0, total = 0, avg = 0;
+	int sequence = 1;
+	
 	while (ping_loop) {
-		printf("%s bytes from %s (%s): icmp_seq=1 ttl=%s time=%s ms\n", 
+		start = clock();
+		// set time = current_time
+		// send ping
+		// receive response
+		// count the time it took to receive the response
+		// catch errors
+		// print current cycle's stats
+
+		end = clock();
+		duration = (double)(end - start);
+		total += duration;
+		printf("%s bytes from %s (%s): icmp_seq=%d ttl=%s time=%f ms\n", 
 			"64", // packet size!!
 			request->reverse_hostname,
 			request->target_ip,
-			"62", // ttl value
-			"2.00"); // ping response time
+			sequence,
+			"46", // ttl value
+			duration); // ping response time
 		sleep(1);
+		sequence++;
 	}
-	print_statistics(request);
+	avg = total / sequence;
+	print_statistics(request, avg);
 }
 
 void perform_request(t_request *request) {	

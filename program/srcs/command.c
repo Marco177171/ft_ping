@@ -63,14 +63,13 @@ void free_request(t_request *request) {
 }
 
 void init_request(t_request *request) {
-
 	request->domain_name = NULL;
 	request->flag_string = NULL;
 	request->target_ip = NULL;
 	request->reverse_hostname = NULL;
 	request->flags = malloc(sizeof(t_ping_flags));
 
-	request->flags->ttl = 0;
+	request->flags->ttl = 46;
 	request->flags->ip_timestamp = 0;
 	request->flags->flood = 0;
 	request->flags->preload = 0;
@@ -78,6 +77,7 @@ void init_request(t_request *request) {
 	request->flags->deadline = 0;
 	request->flags->timeout = 0;
 	request->flags->pattern = 0;
+	request->flags->packetsize = 64;
 	request->flags->bypass_routing = 0;
 	request->flags->timestamp = 0;
 }
