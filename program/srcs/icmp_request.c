@@ -41,21 +41,7 @@ void print_statistics(t_request *request, double min, double avg, double max) {
 	printf("rtt min/avg/max/mdev = %.3f/%.3f/%.3f/1.413 ms\n", min, avg, max);
 }
 
-// Make a ping request
-void ping_cycle(t_request *request, int sockfd) {
-    printf("[FT_PING] Starting ping cycle on FD %d\n", sockfd);
-	
-	if (request->domain_name) {
-		printf("PING %s (%s) 56(84) bytes of data.\n", 
-			request->reverse_hostname, 
-			request->target_ip);
-	}
-	else {
-		printf("PING %s (%s) 56(84) bytes of data.", 
-			request->target_ip, 
-			request->target_ip);
-	}
-		
+void ping_cycle(t_request *request) {
 	signal(SIGINT, signal_handler);
 
 	t_ping_pkt *packet = malloc(sizeof(t_ping_pkt));
@@ -64,7 +50,7 @@ void ping_cycle(t_request *request, int sockfd) {
 		free_request(request);
 		exit(EXIT_FAILURE);
 	}
-	memset(packet->msg, 'a', (sizeof(packet->msg) - 1));
+	memset(packet->msg, 'a', (sizeof(packet->msg)));
 	printf("[FT_PING] Packet created\t: %s\n", packet->msg);
 	free(packet);
 
@@ -102,6 +88,22 @@ void ping_cycle(t_request *request, int sockfd) {
 	print_statistics(request, min, avg, max);
 }
 
+// Make a ping request
+void init_ping(t_request *request, int sockfd) {
+    printf("[FT_PING] Starting ping cycle on FD %d\n", sockfd);
+	
+	if (request->domain_name) {
+		printf("PING %s (%s) 56(84) bytes of data.\n", 
+			request->reverse_hostname, 
+			request->target_ip);
+	}
+	else {
+		printf("PING %s (%s) 56(84) bytes of data.", 
+			request->target_ip, 
+			request->target_ip);
+	}
+}
+
 void perform_request(t_request *request) {	
 	dns_resolver(request); // complete request structure
 
@@ -113,8 +115,7 @@ void perform_request(t_request *request) {
 		free_request(request);
 		exit(EXIT_FAILURE);
 	}
-	else {
-		printf("[FT_PING] Socket open. FD\t: %d\n", sockfd);
-		ping_cycle(request, sockfd);
-	}
+	printf("[FT_PING] Socket open. FD\t: %d\n", sockfd);
+	init_ping(request, sockfd);
+	ping_cycle(request);
 }
