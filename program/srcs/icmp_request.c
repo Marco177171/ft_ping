@@ -38,7 +38,7 @@ void print_statistics(t_request *request, double min, double avg, double max) {
 		printf("\n--- %s ping statistics ---\n", request->target_ip);
 	
 	printf("3 packets transmitted, 3 received, 0%% packet loss, time 2003ms\n");
-	printf("rtt min/avg/max/mdev = %f/%f/%f/1.413 ms\n", min, avg, max);
+	printf("rtt min/avg/max/mdev = %.3f/%.3f/%.3f/1.413 ms\n", min, avg, max);
 }
 
 // Make a ping request
@@ -64,7 +64,10 @@ void ping_cycle(t_request *request, int sockfd) {
 		free_request(request);
 		exit(EXIT_FAILURE);
 	}
-	
+	memset(packet->msg, 'a', (sizeof(packet->msg) - 1));
+	printf("[FT_PING] Packet created\t: %s\n", packet->msg);
+	free(packet);
+
 	clock_t start, end;
 	double duration = 0, total = 0, avg = 0, min = 0, max = 0;
 	int sequence = 1;
