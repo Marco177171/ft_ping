@@ -30,10 +30,16 @@ int main(int argc, char **argv) {
 		perror("[FT_PING] ERROR: could not allocate request structure");
 		exit(EXIT_FAILURE);
 	}
-
 	init_request(request);
+
+	// t_ping_settings *settings = malloc(sizeof(t_ping_settings));
+	// if (!settings) {
+	// 	perror("[FT_PING] ERROR: could not allocate settings structure");
+	// 	exit(EXIT_FAILURE);
+	// }
+	// init_settings(settings);
+
 	parse_command(request, argv);
-	
 	perform_request(request);
 
 	free_request(request);

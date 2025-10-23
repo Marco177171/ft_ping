@@ -1,22 +1,22 @@
 #include <command.h>
 
-void parse_flags(t_request *request, const char *flag_string) {
+void parse_flags(t_request *request, char **args, int i) {
 	printf("[FT_PING] Parsing flags...\n");
-	if (!strcmp(flag_string, "--ttl")) {
-		request->flags->ttl = 1;
-		printf("[FT_PING] TTL option set.\n");
-		return ;
-	}
-	if (!strcmp(flag_string, "--ip-timestamp")) {
+	// if (!strcmp(args[i], "--ttl")) {
+	// 	request->flags->ttl = 1;
+	// 	printf("[FT_PING] TTL option set.\n");
+	// 	return ;
+	// }
+	if (!strcmp(args[i], "--ip-timestamp")) {
 		request->flags->ip_timestamp = 1;
 		printf("[FT_PING] IP TIMESTAMP option set.\n");
 		return ;
 	}
 	if (!request->flag_string) {
-		request->flag_string = strdup(flag_string);
+		request->flag_string = strdup(args[i]);
 		return ;
 	}
-	request->flag_string = strcat(request->flag_string, flag_string);
+	request->flag_string = strcat(request->flag_string, args[i]);
 	printf("[FT_PING] Saved flag_string: %s\n", request->flag_string);
 }
 
@@ -25,6 +25,8 @@ void switch_flags_on(t_request *request) {
 
 	if (request->flag_string) {
 		while (request->flag_string[i]) {
+			// if (request->flag_string[i] == 't')
+			// 	request->flags->ttl = 1;
 			if (request->flag_string[i] == 'f')
 				request->flags->flood = 1;
 			else if (request->flag_string[i] == 'l')
@@ -107,7 +109,7 @@ void parse_command(t_request *request, char **argv) {
 	int i = 1;
 	while (argv[i]) {
 		if (argv[i][0] == '-')
-			parse_flags(request, argv[i]);
+			parse_flags(request, argv, i);
 		else if (!argv[i + 1]) {
 			// esegui un dns lookup sull'argomento. Aggiorna la struttura
 			parse_target(request, argv[i]);

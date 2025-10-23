@@ -54,7 +54,7 @@ char *reverse_dns_lookup(char *ip, struct sockaddr_in *sock_addr) {
 	return domain_name;
 }
 
-void dns_resolver(t_request *request) {
+struct sockaddr_in * dns_resolver(t_request *request) {
 	struct sockaddr_in *sock_address = malloc(sizeof(struct sockaddr_in));
 	if (!sock_address) {
 		printf("[FT_PING] ERROR : Could not allocate sockaddr_in* struct for socket address. Exiting...");
@@ -93,5 +93,6 @@ void dns_resolver(t_request *request) {
 	printf("[FT_PING] Socket family\t\t: %d\n", sock_address->sin_family);
 	printf("[FT_PING] Socket port\t\t: %d\n", sock_address->sin_port);
 
-	free(sock_address);
+	// free(sock_address);
+	return sock_address;
 }
