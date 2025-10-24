@@ -41,7 +41,7 @@ void print_statistics(t_request *request, double min, double avg, double max) {
 
 void ping_cycle(t_request *request, struct sockaddr_in *sock_address) {
 	signal(SIGINT, signal_handler);
-	
+
 	printf("[FT_PING] -> Declaring RAW socket...\n");
 	int sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
 	if (sockfd < 0) {
@@ -60,23 +60,37 @@ void ping_cycle(t_request *request, struct sockaddr_in *sock_address) {
 		exit(EXIT_FAILURE);
 	}
 
+	int ttl_value = request->flags->ttl;
+	setsockopt(sockfd, SOL_IP, IP_TTL, &ttl_value, sizeof(ttl_value));
+	
+	struct sockaddr_in *receptor = malloc(sizeof(struct sockaddr_in)); // receive answers here
+	
 	struct timespec start, end;
 	double duration = 0, total = 0, avg = 0, min = 0, max = 0;
-	// setsockopt(sockfd, SOL_IP, IP_TTL, &ttl_val, sizeof(ttl_val)) != 0);
-	
-	// struct sockaddr_in *receptor = malloc(sizeof(struct sockaddr_in)); // receive answers here
-	// char receiver_buf[128];
-	int sequence = 1;
+	char receiver_buf[128];
 
+	printf("[FT_PING] Starting cycle...\n");
+	
+	int sequence = 1;
 	while (ping_loop) {
+		// Fill packet structure
+		packet->hdr.type = ICMP_ECHO; // set ping header
+		// printf("[FT_PING] : DEBUG POINTER...\n");
+		packet->hdr.un.echo.id = getpid(); // assign id = this process id
+		memset(packet->msg, 'A', sizeof(packet->msg)); // Fill message
+		packet->msg[sizeof(packet->msg)] = '\0';
+
+		printf("[FT_PING] Packet filled. header_type : %d | id : %d | message : %s\n",
+			packet->hdr.type, packet->hdr.un.echo.id, packet->msg);
+
 		clock_gettime(CLOCK_MONOTONIC, &start); // set time = current_time (nano-s)
-		
+
 		// send ping and check
 		if (sendto(sockfd,
 			packet,
 			sizeof(*packet),
 			0,
-			(struct sockaddr *)sock_address,
+			(struct sockaddr *)sock_address, 
 			sizeof(*sock_address)) <= 0) {
 			printf("[FT_PING] ERROR : Could not send data through the socket\n");
 			free(packet);
@@ -84,19 +98,22 @@ void ping_cycle(t_request *request, struct sockaddr_in *sock_address) {
 			exit(EXIT_FAILURE);
 		}
 
-		// receive response
-		// if (recvfrom(sockfd,
-		// 	receiver_buf,
-		// 	sizeof(receiver_buf),
-		// 	0,
-		// 	(struct sockaddr *)receptor,
-		// 	(socklen_t * restrict)(sizeof(*receptor))) <= 0 &&
-		// 	sequence > 1) {
-		// 	printf("[FT_PING] ERROR : Could not receive an answer from the target\n");
-		// 	free(packet);
-		// 	free_request(request);
-		// 	exit(EXIT_FAILURE);
-		// }
+		printf("[FT_PING] packet N %d sent.\n", sequence);
+
+		// receive response and check
+		if (recvfrom(sockfd,
+			receiver_buf,
+			sizeof(receiver_buf),
+			0,
+			(struct sockaddr *)receptor,
+			(socklen_t * restrict)(sizeof(*receptor))) <= 0 &&
+			sequence > 1) {
+			printf("[FT_PING] ERROR : Could not receive an answer from the target\n");
+			free(packet);
+			free_request(request);
+			exit(EXIT_FAILURE);
+		}
+
 		clock_gettime(CLOCK_MONOTONIC, &end); // nanoseconds to receive the response
 		duration = (double)((end.tv_nsec - start.tv_nsec) / 10000); // losing precision with cast to double
 		total += duration;
@@ -136,8 +153,8 @@ void init_ping(t_request *request) {
 	}
 }
 
-void perform_request(t_request *request) {	
-	struct sockaddr_in *sock_address = dns_resolver(request);	// complete request structure
-	init_ping(request);		// set request
-	ping_cycle(request, sock_address);	// execute actual ping
+void perform_request(t_request *request) {
+	struct sockaddr_in *sock_address = dns_resolver(request); // complete request structure
+	init_ping(request); // set request
+	ping_cycle(request, sock_address); // execute actual ping
 }

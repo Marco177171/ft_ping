@@ -5,7 +5,10 @@ char *dns_lookup(char *domain_name, struct sockaddr_in *sock_address) {
 	printf("[FT_PING] -> DNS resolver called...\n");
 
 	struct addrinfo *address = NULL;
-	getaddrinfo(domain_name, NULL, NULL, &address);
+	if (getaddrinfo(domain_name, NULL, NULL, &address) != 0) {
+		printf("ping: %s: Name or service not known\n", domain_name);
+		exit(EXIT_FAILURE);
+	}
 
 	char buf_string[128];
 	// struct sockaddr_in *socket_address = NULL;
