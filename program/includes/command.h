@@ -11,7 +11,8 @@ typedef struct s_ping_flags {
 	int preload;		// -l -> send <preload> number of packages while waiting replies
 	int numeric;
 	int deadline;
-	int timeout;		// -W <time to wait for response>
+	// int timeout;		// -W <time to wait for response>
+	struct timeval timeout;
 	int pattern;		// -p -> contents of padding byte
 	int bypass_routing;
 	int packetsize;		// default = 64

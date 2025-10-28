@@ -36,7 +36,7 @@ void switch_flags_on(t_request *request) {
 			else if (request->flag_string[i] == 'w')
 				request->flags->deadline = 1;
 			else if (request->flag_string[i] == 'W')
-				request->flags->timeout = 1;
+				request->flags->timeout.tv_sec = 1; // set timeout to 1 second for now
 			else if (request->flag_string[i] == 'p')
 				request->flags->pattern = 1;
 			else if (request->flag_string[i] == 'r')
@@ -77,7 +77,8 @@ void init_request(t_request *request) {
 	request->flags->preload = 0;
 	request->flags->numeric = 0;
 	request->flags->deadline = 0;
-	request->flags->timeout = 0;
+	request->flags->timeout.tv_sec = 0;
+	request->flags->timeout.tv_usec = 0;
 	request->flags->pattern = 0;
 	request->flags->packetsize = 64;
 	request->flags->bypass_routing = 0;
@@ -95,6 +96,11 @@ void parse_target(t_request *request, char *address_string) {
 	else if (is_domain_name(address_string)) {
 		request->domain_name = strdup(address_string);
 		printf("[FT_PING] Domain name set in structure: %s\n", request->domain_name);
+	}
+
+	else if (!strncmp(address_string, "localhost", 9)) {
+		request->target_ip = strdup("127.0.0.1");
+		printf("[FT_PING] Localhost address set: %s\n", request->target_ip);
 	}
 
 	// torna errore se non valida
