@@ -27,6 +27,17 @@
 // can include the first 64 bits of the original
 // IP packet that generated the ICMP message. (Google)
 
+typedef struct s_ping_stats {
+	int packets_sent;
+	int packets_received;
+	int sequence;
+	double duration;
+	double total;
+	double avg;
+	double min;
+	double max;
+} t_ping_stats;
+
 typedef struct s_ping_pkt {
 	struct icmphdr hdr;
 	char msg[64 - sizeof(struct icmphdr)];

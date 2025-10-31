@@ -77,7 +77,7 @@ void init_request(t_request *request) {
 	request->flags->preload = 0;
 	request->flags->numeric = 0;
 	request->flags->deadline = 0;
-	request->flags->timeout.tv_sec = 0;
+	request->flags->timeout.tv_sec = 1;
 	request->flags->timeout.tv_usec = 0;
 	request->flags->pattern = 0;
 	request->flags->packetsize = 64;
