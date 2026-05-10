@@ -114,8 +114,9 @@ void parse_target(t_request *request, char *address_string) {
 void parse_command(t_request *request, char **argv) {
 	int i = 1;
 	while (argv[i]) {
-		if (argv[i][0] == '-')
+		if (argv[i][0] == '-') {
 			parse_flags(request, argv, i);
+		}
 		else if (!argv[i + 1]) {
 			// esegui un dns lookup sull'argomento. Aggiorna la struttura
 			parse_target(request, argv[i]);

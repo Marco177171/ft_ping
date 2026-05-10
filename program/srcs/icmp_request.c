@@ -85,7 +85,7 @@ void define_socket_options(int *sockfd, t_request *request) {
 
 
 void ping_cycle(t_request *request, struct sockaddr_in *sock_address) {
-	signal(SIGINT, signal_handler);
+	signal(SIGINT, (void *)signal_handler);
 
 	// printf("[FT_PING] -> Declaring RAW socket...\n");
 

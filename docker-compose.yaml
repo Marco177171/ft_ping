@@ -1,0 +1,8 @@
+services:
+  ping_machine:
+    container_name: ping_machine
+    build:
+      context: .
+      dockerfile: ./dockerfile
+    volumes:
+      - ./program:/ping_app
