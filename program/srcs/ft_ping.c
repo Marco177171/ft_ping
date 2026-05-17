@@ -1,6 +1,3 @@
-// FLAGS:
-// -f -l -n -w -W -p -r -s -T --ttl --ip-timestamp
-
 // FORMAT:
 // PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
 // PING [TARGET_IP] ([TARGET_IP]) 56(84) bytes of data.
@@ -31,13 +28,6 @@ int main(int argc, char **argv) {
 		exit(EXIT_FAILURE);
 	}
 	init_request(request);
-
-	// t_ping_settings *settings = malloc(sizeof(t_ping_settings));
-	// if (!settings) {
-	// 	perror("[FT_PING] ERROR: could not allocate settings structure");
-	// 	exit(EXIT_FAILURE);
-	// }
-	// init_settings(settings);
 
 	parse_command(request, argv);
 	perform_request(request);

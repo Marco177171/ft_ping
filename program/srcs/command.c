@@ -1,23 +1,109 @@
 #include <command.h>
 
-void parse_flags(t_request *request, char **args, int i) {
-	printf("[FT_PING] Parsing flags...\n");
-	// if (!strcmp(args[i], "--ttl")) {
-	// 	request->flags->ttl = 1;
-	// 	printf("[FT_PING] TTL option set.\n");
-	// 	return ;
-	// }
-	if (!strcmp(args[i], "--ip-timestamp")) {
-		request->flags->ip_timestamp = 1;
-		printf("[FT_PING] IP TIMESTAMP option set.\n");
-		return ;
+// FLAGS:
+
+void set_preload(t_request *request, char **argv, int i) {
+	int j = 0;
+	while (argv[i + 1][j]) {
+		if (!isdigit(argv[i + 1][j])) {
+			printf("[ERROR] : flag \"%s\" has not a valid argument argument\n", argv[i]);
+			free_request(request);
+			exit(EXIT_FAILURE);
+		}
+		j++;
 	}
-	if (!request->flag_string) {
-		request->flag_string = strdup(args[i]);
-		return ;
+	int preload = atoi(argv[i+ 1]);
+	if (preload > 3) {
+		printf("[ERROR] : ping: cannot set preload to value greater than 3: %s\n", argv[i + 1]);
+		free_request(request);
+		exit(EXIT_FAILURE);
 	}
-	request->flag_string = strcat(request->flag_string, args[i]);
-	printf("[FT_PING] Saved flag_string: %s\n", request->flag_string);
+	request->flags->preload = preload;
+}
+
+void set_interval(t_request *request, char *interval_string) {
+	int i = 0;
+	while (interval_string[i]) {
+		if (!isdigit(interval_string[i])) {
+			printf("ping: option argument contains garbage: %s\n", interval_string);
+			printf("ping: this will become fatal error in the future\n");
+			printf("ping: usage error: Destination address required\n");
+			free_request(request);
+			exit(EXIT_FAILURE);
+		}
+		i++;
+	}
+	int interval = atoi(interval_string);
+	request->flags->interval = interval;
+}
+
+void set_deadline(t_request *request, char *dealine_string) {
+	int i = 0;
+	while (dealine_string[i]) {
+		if (!isdigit(dealine_string[i])) {
+			printf("ping: option argument contains garbage: %s\n", dealine_string);
+			printf("ping: this will become fatal error in the future\n");
+			printf("ping: usage error: Destination address required\n");
+			free_request(request);
+			exit(EXIT_FAILURE);
+		}
+		i++;
+	}
+	int deadline = atoi(dealine_string);
+	request->flags->deadline = deadline;
+}
+
+// -f -l -n -w -W -p -r -s -T --ttl --ip-timestamp
+void set_flag(t_request *request, char **argv, int i) {
+	if (argv[i][1] == 'i')
+		set_interval(request, argv[i + 1]);
+	if (argv[i][1] == 'f')
+		request->flags->flood = 1;
+	else if (argv[i][1] == 'l')
+		set_preload(request, argv, i);
+	else if (argv[i][1] == 'n')
+		request->flags->numeric = 1;
+	else if (argv[i][1] == 'w')
+		set_deadline(request, argv[i + 1]);
+	else if (argv[i][1] == 'f') {
+		request->flags->flood = 1;
+	}
+	else if (argv[i][1] == 'f')
+		request->flags->flood = 1;
+	else if (argv[i][1] == 'f')
+		request->flags->flood = 1;
+	else if (argv[i][1] == 'f')
+		request->flags->flood = 1;
+	else if (argv[i][1] == 'f')
+		request->flags->flood = 1;
+	else if (argv[i][1] == 'f')
+		request->flags->flood = 1;
+	else if (argv[i][1] == 'f')
+		request->flags->flood = 1;
+}
+
+void parse_flags(t_request *request, char **argv, int i) {
+	// la stringa in i è una flag.
+	// controlla se è tra le flag richieste
+	// se non lo è, torna un errore
+	if (strcmp(argv[i], "-i") != 0
+		&& strcmp(argv[i], "-f") != 0
+		&& strcmp(argv[i], "-l") != 0
+		&& strcmp(argv[i], "-n") != 0
+		&& strcmp(argv[i], "-w") != 0
+		&& strcmp(argv[i], "-W") != 0
+		&& strcmp(argv[i], "-p") != 0
+		&& strcmp(argv[i], "-r") != 0
+		&& strcmp(argv[i], "-s") != 0
+		&& strcmp(argv[i], "-T") != 0
+		&& strcmp(argv[i], "-ttl") != 0
+		&& strcmp(argv[i], "--ip-timestmp") != 0) {
+		printf("ping: unrecognized option: %s\n", argv[i]);
+		free_request(request);
+		exit (EXIT_FAILURE);
+	}
+	// Se tutto è giusto, registra la flag
+	set_flag(request, argv, i);
 }
 
 void switch_flags_on(t_request *request) {
@@ -69,8 +155,9 @@ void init_request(t_request *request) {
 	request->flag_string = NULL;
 	request->target_ip = NULL;
 	request->reverse_hostname = NULL;
+	// Allocate and set flags
 	request->flags = malloc(sizeof(t_ping_flags));
-
+	request->flags->interval = 1;
 	request->flags->ttl = 46;
 	request->flags->ip_timestamp = 0;
 	request->flags->flood = 0;
@@ -114,15 +201,10 @@ void parse_target(t_request *request, char *address_string) {
 void parse_command(t_request *request, char **argv) {
 	int i = 1;
 	while (argv[i]) {
-		if (argv[i][0] == '-') {
+		if (argv[i][0] == '-')
 			parse_flags(request, argv, i);
-		}
-		else if (!argv[i + 1]) {
-			// esegui un dns lookup sull'argomento. Aggiorna la struttura
+		else if (!argv[i + 1])
 			parse_target(request, argv[i]);
-			// request->target_ip = strdup(argv[i]);
-			// printf("Target: %s\n", request->target_ip);
-		}
 		i++;
 	}
 	if (request->flags)

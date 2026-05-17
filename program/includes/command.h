@@ -5,12 +5,13 @@
 #include <checks.h>
 
 typedef struct s_ping_flags {
+	int interval;
 	int ttl;			// -t --ttl / default = 46 -> amount of router jumps the packet can do before error
 	int ip_timestamp;	// -T --ip-timestamp -> can be one of <tsonly|tsandaddr|tsprespec>
 	int flood;			// -f -> send continuous packets
 	int preload;		// -l -> send <preload> number of packages while waiting replies
 	int numeric;
-	int deadline;
+	int deadline;		// -w -> set in seconds 
 	// int timeout;		// -W <time to wait for response>
 	struct timeval timeout;
 	int pattern;		// -p -> contents of padding byte

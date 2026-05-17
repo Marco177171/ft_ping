@@ -123,6 +123,8 @@ void ping_cycle(t_request *request, struct sockaddr_in *sock_address) {
 
 	printf("[FT_PING] Starting cycle...\n");
 
+	time_t deadline_start = time(NULL);
+
 	while (ping_loop) {
 		// Init packet structure
 		packet->hdr.type = ICMP_ECHO; // set ping header
@@ -186,21 +188,37 @@ void ping_cycle(t_request *request, struct sockaddr_in *sock_address) {
 			stats->max = stats->duration;
 
 		// print current cycle's stats
-		printf("%s bytes from %s (%s): icmp_seq=%d ttl=%d time=%.2f ms\n", 
-			"64", // packet size!!
-			request->reverse_hostname,
-			request->target_ip,
-			stats->sequence,
-			request->flags->ttl,
-			stats->duration); // ping response time
-		sleep(1);
+		if (request->flags->numeric == 0) {
+			printf("%s bytes from %s (%s): icmp_seq=%d ttl=%d time=%.2f ms\n", 
+				"64", // packet size!!
+				request->reverse_hostname,
+				request->target_ip,
+				stats->sequence,
+				request->flags->ttl,
+				stats->duration); // ping response time
+		}
+		else {
+			printf("%s bytes from %s: icmp_seq=%d ttl=%d time=%.2f ms\n", 
+				"64", // packet size!!
+				request->target_ip,
+				stats->sequence,
+				request->flags->ttl,
+				stats->duration); // ping response time
+		}
+		sleep(request->flags->interval);
 		stats->sequence++;
+
+		if (request->flags->deadline != 0) {
+			if (time(NULL) - deadline_start >= request->flags->deadline)
+				break ;
+		}
 	}
 	if (stats->sequence > 1)
 		stats->avg = stats->total / (stats->sequence - 1);
 	else
 		stats->avg = 0;
 	print_statistics(request, stats);
+
 }
 
 // Make a ping request
