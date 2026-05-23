@@ -4,7 +4,7 @@ PING_OBJS = $(:.c=.o)
 PING_FLAGS = -Wall -Wextra -Werror -I includes
 
 $(PING): $(PING_OBJS)
-	gcc $(PING_FLAGS) $(PING_SRCS) $(PING_FLAGS) -o $(PING)
+	gcc $(PING_FLAGS) $(PING_SRCS) -o $(PING)
 
 clean:
 	rm -rf srcs/*.o

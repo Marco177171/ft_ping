@@ -1,7 +1,5 @@
 #include <command.h>
 
-// FLAGS:
-
 void set_preload(t_request *request, char **argv, int i) {
 	int j = 0;
 	while (argv[i + 1][j]) {
@@ -97,16 +95,15 @@ void set_flag(t_request *request, char **argv, int i) {
 		set_timeout(request, argv[i + 1]);
 	else if (argv[i][1] == 's')
 		set_packet_size(request, argv[i + 1]);
+	// NOT MANAGED:
 	// else if (argv[i][1] == 'p')
 	// 	// pad bytes (???)
 	// else if (argv[i][1] == 'r')
 	// 	// Bypass the normal routing tables
-	else if (argv[i][1] == 'f')
-		request->flags->flood = 1;
-	else if (argv[i][1] == 'f')
-		request->flags->flood = 1;
-	else if (argv[i][1] == 'f')
-		request->flags->flood = 1;
+	// else if (argv[i][1] == 'T' || !strcmp(argv[i], "--ip-timestamp"))
+	// 	// set timestamp
+	// else if (argv[i][1] == 't' || !strcmp(argv[i], "--ttl"))
+	// 	// time to live
 }
 
 void parse_flags(t_request *request, char **argv, int i) {
@@ -119,12 +116,14 @@ void parse_flags(t_request *request, char **argv, int i) {
 		&& strcmp(argv[i], "-n") != 0
 		&& strcmp(argv[i], "-w") != 0
 		&& strcmp(argv[i], "-W") != 0
-		&& strcmp(argv[i], "-p") != 0
-		&& strcmp(argv[i], "-r") != 0
 		&& strcmp(argv[i], "-s") != 0
-		&& strcmp(argv[i], "-T") != 0
-		&& strcmp(argv[i], "-ttl") != 0
-		&& strcmp(argv[i], "--ip-timestmp") != 0) {
+		// && strcmp(argv[i], "-p") != 0
+		// && strcmp(argv[i], "-r") != 0
+		// && strcmp(argv[i], "-T") != 0
+		// && strcmp(argv[i], "-ttl") != 0
+		// && strcmp(argv[i], "-t") != 0
+		// && strcmp(argv[i], "--ip-timestmp") != 0
+		) {
 		printf("ping: unrecognized option: %s\n", argv[i]);
 		free_request(request);
 		exit (EXIT_FAILURE);
