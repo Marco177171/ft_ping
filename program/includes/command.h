@@ -3,6 +3,7 @@
 
 #include <general.h>
 #include <checks.h>
+#include <sys/time.h>
 
 typedef struct s_ping_flags {
 	int interval;
@@ -32,7 +33,6 @@ typedef struct s_request {
 void init_request(t_request *request);
 void parse_command(t_request *request, char **argv);
 void parse_flags(t_request *request, char **args, int i);
-void switch_flags_on(t_request *request);
 void free_request(t_request *request);
 void parse_target(t_request *request, char *address_string);
 

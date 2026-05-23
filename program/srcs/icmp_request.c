@@ -72,7 +72,7 @@ void define_socket_options(int *sockfd, t_request *request) {
 		IP_TTL, 
 		&request->flags->ttl, 
 		sizeof(request->flags->ttl)) != 0) {
-		printf("[FT_PING] ERROR : Setting socket options to TTL failed!\n");
+		// printf("[FT_PING] ERROR : Setting socket options to TTL failed!\n");
 		return;
 	}
 	// TIMEOUT at SOCKET level
@@ -91,18 +91,18 @@ void ping_cycle(t_request *request, struct sockaddr_in *sock_address) {
 
 	int sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
 	if (sockfd < 0) {
-		printf("[FT_PING] SOCKET ERROR : Could not create a file descriptor. Exiting...\n");
+		// printf("[FT_PING] SOCKET ERROR : Could not create a file descriptor. Exiting...\n");
 		// free(sock_address);
 		free_request(request);
 		exit(EXIT_FAILURE);
 	}
 	
-	printf("[FT_PING] Socket open. FD\t: %d\n", sockfd);
-	printf("[FT_PING] -> Creating ping packet...\n");
+	// printf("[FT_PING] Socket open. FD\t: %d\n", sockfd);
+	// printf("[FT_PING] -> Creating ping packet...\n");
 
 	t_ping_pkt *packet = malloc(sizeof(t_ping_pkt));
 	if (!packet) {
-		printf("[FT_PING] ERROR : could not allocate ping packet.\n");
+		// printf("[FT_PING] ERROR : could not allocate ping packet.\n");
 		free_request(request);
 		exit(EXIT_FAILURE);
 	}
@@ -121,11 +121,12 @@ void ping_cycle(t_request *request, struct sockaddr_in *sock_address) {
 	struct iphdr *ip_hdr = (struct iphdr *)receiver_buf;
 	int ip_header_len = ip_hdr->ihl * 4;
 
-	printf("[FT_PING] Starting cycle...\n");
+	// printf("[FT_PING] Starting cycle...\n");
 
 	time_t deadline_start = time(NULL);
 
 	while (ping_loop) {
+		time_t timeout_start = time(NULL);
 		// Init packet structure
 		packet->hdr.type = ICMP_ECHO; // set ping header
 		packet->hdr.un.echo.id = getpid(); // assign id = this process id
@@ -145,7 +146,7 @@ void ping_cycle(t_request *request, struct sockaddr_in *sock_address) {
 			0,
 			(struct sockaddr *)sock_address, 
 			sizeof(*sock_address)) <= 0) {
-			printf("[FT_PING] ERROR : Could not send data through the socket\n");
+			// printf("[FT_PING] ERROR : Could not send data through the socket\n");
 			free(packet);
 			free_request(request);
 			exit(EXIT_FAILURE);
@@ -153,6 +154,11 @@ void ping_cycle(t_request *request, struct sockaddr_in *sock_address) {
 		stats->packets_sent++;
 
 		// printf("[FT_PING] packet N %d sent.\n", sequence);
+		if (request->flags->timeout.tv_usec != 0 
+			|| request->flags->timeout.tv_sec != 0) {
+			if (time(NULL) - timeout_start >= request->flags->timeout.tv_sec)
+				break ;
+		}
 
 		// receive response and check
 		if (recvfrom(sockfd,
@@ -161,7 +167,7 @@ void ping_cycle(t_request *request, struct sockaddr_in *sock_address) {
 			0,
 			(struct sockaddr *)receptor,
 			&receptor_len) <= 0) {
-			printf("[FT_PING] ERROR : Could not receive an answer from the target\n");
+			// printf("[FT_PING] ERROR : Could not receive an answer from the target\n");
 			free(packet);
 			free_request(request);
 			exit(EXIT_FAILURE);
@@ -189,8 +195,8 @@ void ping_cycle(t_request *request, struct sockaddr_in *sock_address) {
 
 		// print current cycle's stats
 		if (request->flags->numeric == 0) {
-			printf("%s bytes from %s (%s): icmp_seq=%d ttl=%d time=%.2f ms\n", 
-				"64", // packet size!!
+			printf("%d bytes from %s (%s): icmp_seq=%d ttl=%d time=%.2f ms\n", 
+				request->flags->packetsize,
 				request->reverse_hostname,
 				request->target_ip,
 				stats->sequence,
@@ -198,8 +204,8 @@ void ping_cycle(t_request *request, struct sockaddr_in *sock_address) {
 				stats->duration); // ping response time
 		}
 		else {
-			printf("%s bytes from %s: icmp_seq=%d ttl=%d time=%.2f ms\n", 
-				"64", // packet size!!
+			printf("%d bytes from %s: icmp_seq=%d ttl=%d time=%.2f ms\n", 
+				request->flags->packetsize,
 				request->target_ip,
 				stats->sequence,
 				request->flags->ttl,
@@ -217,8 +223,8 @@ void ping_cycle(t_request *request, struct sockaddr_in *sock_address) {
 		stats->avg = stats->total / (stats->sequence - 1);
 	else
 		stats->avg = 0;
+	free(packet);
 	print_statistics(request, stats);
-
 }
 
 // Make a ping request

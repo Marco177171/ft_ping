@@ -53,6 +53,34 @@ void set_deadline(t_request *request, char *dealine_string) {
 	request->flags->deadline = deadline;
 }
 
+void set_timeout(t_request *request, char *timeout_seconds) {
+	int i = 0;
+	while (timeout_seconds[i]) {
+		if (!isdigit(timeout_seconds[i])) {
+			printf("ping: invalid number '%s'\n", timeout_seconds);
+			free_request(request);
+			exit(EXIT_FAILURE);
+		}
+		i++;
+	}
+	int timeout = atoi(timeout_seconds);
+	request->flags->deadline = timeout;
+}
+
+void set_packet_size(t_request *request, char *size_string) {
+	int i = 0;
+	while (size_string[i]) {
+		if (!isdigit(size_string[i])) {
+			printf("ping: invalid number '%s'\n", size_string);
+			free_request(request);
+			exit(EXIT_FAILURE);
+		}
+		i++;
+	}
+	int packet_size = atoi(size_string) + 8; // at least 1 byte
+	request->flags->packetsize = packet_size;
+}
+
 // -f -l -n -w -W -p -r -s -T --ttl --ip-timestamp
 void set_flag(t_request *request, char **argv, int i) {
 	if (argv[i][1] == 'i')
@@ -65,15 +93,14 @@ void set_flag(t_request *request, char **argv, int i) {
 		request->flags->numeric = 1;
 	else if (argv[i][1] == 'w')
 		set_deadline(request, argv[i + 1]);
-	else if (argv[i][1] == 'f') {
-		request->flags->flood = 1;
-	}
-	else if (argv[i][1] == 'f')
-		request->flags->flood = 1;
-	else if (argv[i][1] == 'f')
-		request->flags->flood = 1;
-	else if (argv[i][1] == 'f')
-		request->flags->flood = 1;
+	else if (argv[i][1] == 'W')
+		set_timeout(request, argv[i + 1]);
+	else if (argv[i][1] == 's')
+		set_packet_size(request, argv[i + 1]);
+	// else if (argv[i][1] == 'p')
+	// 	// pad bytes (???)
+	// else if (argv[i][1] == 'r')
+	// 	// Bypass the normal routing tables
 	else if (argv[i][1] == 'f')
 		request->flags->flood = 1;
 	else if (argv[i][1] == 'f')
@@ -106,36 +133,6 @@ void parse_flags(t_request *request, char **argv, int i) {
 	set_flag(request, argv, i);
 }
 
-void switch_flags_on(t_request *request) {
-	int i = 1;
-
-	if (request->flag_string) {
-		while (request->flag_string[i]) {
-			// if (request->flag_string[i] == 't')
-			// 	request->flags->ttl = 1;
-			if (request->flag_string[i] == 'f')
-				request->flags->flood = 1;
-			else if (request->flag_string[i] == 'l')
-				request->flags->preload = 1;
-			else if (request->flag_string[i] == 'n')
-				request->flags->numeric = 1;
-			else if (request->flag_string[i] == 'w')
-				request->flags->deadline = 1;
-			else if (request->flag_string[i] == 'W')
-				request->flags->timeout.tv_sec = 1; // set timeout to 1 second for now
-			else if (request->flag_string[i] == 'p')
-				request->flags->pattern = 1;
-			else if (request->flag_string[i] == 'r')
-				request->flags->bypass_routing = 1;
-			else if (request->flag_string[i] == 's')
-				request->flags->packetsize = 1;
-			else if (request->flag_string[i] == 'T')
-				request->flags->timestamp = 1;
-			i++;
-		}
-	}
-}
-
 void free_request(t_request *request) {
 	if (request->domain_name)
 		free(request->domain_name);
@@ -164,8 +161,8 @@ void init_request(t_request *request) {
 	request->flags->preload = 0;
 	request->flags->numeric = 0;
 	request->flags->deadline = 0;
-	request->flags->timeout.tv_sec = 1;
-	request->flags->timeout.tv_usec = 0;
+	request->flags->timeout.tv_sec = 0;		// seconds
+	request->flags->timeout.tv_usec = 0;	// milliseconds
 	request->flags->pattern = 0;
 	request->flags->packetsize = 64;
 	request->flags->bypass_routing = 0;
@@ -176,23 +173,23 @@ void parse_target(t_request *request, char *address_string) {
 	// se la stringa rappresenta un IP...
 	if (is_ip(address_string)) {
 		request->target_ip = strdup(address_string);
-		printf("[FT_PING] IP address: %s\n", request->target_ip);
+		// printf("[FT_PING] IP address: %s\n", request->target_ip);
 	}
 
 	// se la string rappresenta il nome di un Dominio...
 	else if (is_domain_name(address_string)) {
 		request->domain_name = strdup(address_string);
-		printf("[FT_PING] Domain name set in structure: %s\n", request->domain_name);
+		// printf("[FT_PING] Domain name set in structure: %s\n", request->domain_name);
 	}
 
 	else if (!strncmp(address_string, "localhost", 9)) {
 		request->target_ip = strdup("127.0.0.1");
-		printf("[FT_PING] Localhost address set: %s\n", request->target_ip);
+		// printf("[FT_PING] Localhost address set: %s\n", request->target_ip);
 	}
 
 	// torna errore se non valida
 	else {
-		printf("[FT_PING] ping: %s: Name or service not known\n", address_string);
+		// printf("[FT_PING] ping: %s: Name or service not known\n", address_string);
 		free_request(request);
 		exit(EXIT_FAILURE);
 	}
@@ -207,6 +204,4 @@ void parse_command(t_request *request, char **argv) {
 			parse_target(request, argv[i]);
 		i++;
 	}
-	if (request->flags)
-		switch_flags_on(request);
 }
