@@ -172,23 +172,23 @@ void parse_target(t_request *request, char *address_string) {
 	// se la stringa rappresenta un IP...
 	if (is_ip(address_string)) {
 		request->target_ip = strdup(address_string);
-		// printf("[FT_PING] IP address: %s\n", request->target_ip);
+		printf("[FT_PING] IP address: %s\n", request->target_ip);
 	}
 
 	// se la string rappresenta il nome di un Dominio...
 	else if (is_domain_name(address_string)) {
 		request->domain_name = strdup(address_string);
-		// printf("[FT_PING] Domain name set in structure: %s\n", request->domain_name);
+		printf("[FT_PING] Domain name set in structure: %s\n", request->domain_name);
 	}
 
 	else if (!strncmp(address_string, "localhost", 9)) {
 		request->target_ip = strdup("127.0.0.1");
-		// printf("[FT_PING] Localhost address set: %s\n", request->target_ip);
+		printf("[FT_PING] Localhost address set: %s\n", request->target_ip);
 	}
 
 	// torna errore se non valida
 	else {
-		// printf("[FT_PING] ping: %s: Name or service not known\n", address_string);
+		printf("[FT_PING] ping: %s: Name or service not known\n", address_string);
 		free_request(request);
 		exit(EXIT_FAILURE);
 	}

@@ -72,7 +72,7 @@ void define_socket_options(int *sockfd, t_request *request) {
 		IP_TTL, 
 		&request->flags->ttl, 
 		sizeof(request->flags->ttl)) != 0) {
-		// printf("[FT_PING] ERROR : Setting socket options to TTL failed!\n");
+		printf("[FT_PING] ERROR : Setting socket options to TTL failed!\n");
 		return;
 	}
 	// TIMEOUT at SOCKET level
@@ -87,22 +87,22 @@ void define_socket_options(int *sockfd, t_request *request) {
 void ping_cycle(t_request *request, struct sockaddr_in *sock_address) {
 	signal(SIGINT, (void *)signal_handler);
 
-	// printf("[FT_PING] -> Declaring RAW socket...\n");
+	printf("[FT_PING] -> Declaring RAW socket...\n");
 
 	int sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
 	if (sockfd < 0) {
-		// printf("[FT_PING] SOCKET ERROR : Could not create a file descriptor. Exiting...\n");
+		printf("[FT_PING] SOCKET ERROR : Could not create a file descriptor. Exiting...\n");
 		// free(sock_address);
 		free_request(request);
 		exit(EXIT_FAILURE);
 	}
 	
-	// printf("[FT_PING] Socket open. FD\t: %d\n", sockfd);
-	// printf("[FT_PING] -> Creating ping packet...\n");
+	printf("[FT_PING] Socket open. FD\t: %d\n", sockfd);
+	printf("[FT_PING] -> Creating ping packet...\n");
 
 	t_ping_pkt *packet = malloc(sizeof(t_ping_pkt));
 	if (!packet) {
-		// printf("[FT_PING] ERROR : could not allocate ping packet.\n");
+		printf("[FT_PING] ERROR : could not allocate ping packet.\n");
 		free_request(request);
 		exit(EXIT_FAILURE);
 	}
@@ -121,7 +121,7 @@ void ping_cycle(t_request *request, struct sockaddr_in *sock_address) {
 	struct iphdr *ip_hdr = (struct iphdr *)receiver_buf;
 	int ip_header_len = ip_hdr->ihl * 4;
 
-	// printf("[FT_PING] Starting cycle...\n");
+	printf("[FT_PING] Starting cycle...\n");
 
 	time_t deadline_start = time(NULL);
 
@@ -134,8 +134,8 @@ void ping_cycle(t_request *request, struct sockaddr_in *sock_address) {
 		packet->hdr.checksum = 0;
 		packet->hdr.checksum = checksum(packet, sizeof(*packet));
 
-		// printf("[FT_PING] Packet filled. header_type : %d | id : %d | message : %s\n",
-		// 	packet->hdr.type, packet->hdr.un.echo.id, packet->msg);
+		printf("[FT_PING] Packet filled. header_type : %d | id : %d | message : %s\n",
+			packet->hdr.type, packet->hdr.un.echo.id, packet->msg);
 
 		clock_gettime(CLOCK_MONOTONIC, &start); // set time = current_time (nano-s)
 
@@ -146,7 +146,7 @@ void ping_cycle(t_request *request, struct sockaddr_in *sock_address) {
 			0,
 			(struct sockaddr *)sock_address, 
 			sizeof(*sock_address)) <= 0) {
-			// printf("[FT_PING] ERROR : Could not send data through the socket\n");
+			printf("[FT_PING] ERROR : Could not send data through the socket\n");
 			free(packet);
 			free_request(request);
 			exit(EXIT_FAILURE);
@@ -167,7 +167,7 @@ void ping_cycle(t_request *request, struct sockaddr_in *sock_address) {
 			0,
 			(struct sockaddr *)receptor,
 			&receptor_len) <= 0) {
-			// printf("[FT_PING] ERROR : Could not receive an answer from the target\n");
+			printf("[FT_PING] ERROR : Could not receive an answer from the target\n");
 			free(packet);
 			free_request(request);
 			exit(EXIT_FAILURE);
