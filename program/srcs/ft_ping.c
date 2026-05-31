@@ -31,7 +31,5 @@ int main(int argc, char **argv) {
 
 	parse_command(request, argv);
 	perform_request(request);
-
-	free_request(request);
 	return 0;
 }
