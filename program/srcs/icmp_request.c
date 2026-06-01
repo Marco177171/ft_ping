@@ -158,8 +158,14 @@ void ping_cycle(t_request *request, struct sockaddr_in *sock_address) {
 		// printf("[FT_PING] packet N %d sent.\n", sequence);
 		if (request->flags->timeout.tv_usec != 0 
 			|| request->flags->timeout.tv_sec != 0) {
-			if (time(NULL) - timeout_start >= request->flags->timeout.tv_sec)
-				break ;
+			if (time(NULL) - timeout_start >= request->flags->timeout.tv_sec) {
+				if (request->flags->verbose == 1) {
+					printf("seq=%d timed out\n", stats->sequence);
+					continue ;
+				}
+				else
+					break ;
+			}
 		}
 
 		// receive response and check
@@ -184,7 +190,7 @@ void ping_cycle(t_request *request, struct sockaddr_in *sock_address) {
 			&& icmp_hdr->un.echo.sequence == htons(stats->sequence)) {
 			// Got a valid reply
 		} else {
-			// Maybe not your reply — loop again or ignore
+			// Not a valid reply
 		}
 
 		clock_gettime(CLOCK_MONOTONIC, &end); // nanoseconds to receive the response

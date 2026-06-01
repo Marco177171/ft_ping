@@ -6,6 +6,7 @@
 #include <sys/time.h>
 
 typedef struct s_ping_flags {
+	int verbose;
 	int interval;
 	int ttl;			// -t --ttl / default = 46 -> amount of router jumps the packet can do before error
 	int ip_timestamp;	// -T --ip-timestamp -> can be one of <tsonly|tsandaddr|tsprespec>
@@ -35,5 +36,6 @@ void parse_command(t_request *request, char **argv);
 void parse_flags(t_request *request, char **args, int i);
 void free_request(t_request *request);
 void parse_target(t_request *request, char *address_string);
+void print_help_text();
 
 #endif

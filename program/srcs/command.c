@@ -1,5 +1,42 @@
 #include <command.h>
 
+void print_help_text() {
+	printf("Usage\n");
+	printf("ping [options] <destination>\n\n");
+	printf("Options:\n");
+	printf("<destination>      dns name or ip address\n");
+	printf("-a                 use audible ping\n");
+	printf("-A                 use adaptive ping\n");
+	printf("-B                 sticky source address\n");
+	printf("-c <count>         stop after <count> replies\n");
+	printf("-D                 print timestamps\n");
+	printf("-d                 use SO_DEBUG socket option\n");
+	printf("-f                 flood ping\n");
+	printf("-h                 print help and exit\n");
+	printf("-I <interface>     either interface name or address\n");
+	printf("-L                 suppress loopback of multicast packets\n");
+	printf("-l <preload>       send <preload> number of packages while waiting replies\n");
+	printf("-m <mark>          tag the packets going out\n");
+	printf("-M <pmtud opt>     define mtu discovery, can be one of <do|dont|want>\n");
+	printf("-n                 no dns name resolution\n");
+	printf("-O                 report outstanding replies\n");
+	printf("-p <pattern>       contents of padding byte\n");
+	printf("-q                 quiet output\n");
+	printf("-Q <tclass>        use quality of service <tclass> bits\n");
+	printf("-s <size>          use <size> as number of data bytes to be sent\n");
+	printf("-S <size>          use <size> as SO_SNDBUF socket option value\n");
+	printf("-t <ttl>           define time to live\n");
+	printf("-U                 print user-to-user latency\n");
+	printf("-v                 verbose output\n");
+	printf("-V                 print version and exit\n");
+	printf("-w <deadline>      reply wait <deadline> in seconds\n");
+	printf("-W <timeout>       time to wait for response\n\n");
+	printf("IPv4 options:\n");
+	printf("-6                 use IPv6\n");
+	printf("-F <flowlabel>     define flow label, default is random\n");
+	printf("-N <nodeinfo opt>  use icmp6 node info query, try <help> as argument\n");
+}
+
 void set_preload(t_request *request, char **argv, int i) {
 	int j = 0;
 	while (argv[i + 1][j]) {
@@ -62,7 +99,7 @@ void set_timeout(t_request *request, char *timeout_seconds) {
 		i++;
 	}
 	int timeout = atoi(timeout_seconds);
-	request->flags->deadline = timeout;
+	request->flags->timeout.tv_sec = timeout;
 }
 
 void set_packet_size(t_request *request, char *size_string) {
@@ -81,6 +118,13 @@ void set_packet_size(t_request *request, char *size_string) {
 
 // -f -l -n -w -W -p -r -s -T --ttl --ip-timestamp
 void set_flag(t_request *request, char **argv, int i) {
+	if (argv[i][1] == '?') {
+		print_help_text();
+		free_request(request);
+		exit(EXIT_SUCCESS);
+	}
+	if (argv[i][1] == 'v')
+		request->flags->verbose = 1;
 	if (argv[i][1] == 'i')
 		set_interval(request, argv[i + 1]);
 	if (argv[i][1] == 'f')
@@ -117,6 +161,7 @@ void parse_flags(t_request *request, char **argv, int i) {
 		&& strcmp(argv[i], "-w") != 0
 		&& strcmp(argv[i], "-W") != 0
 		&& strcmp(argv[i], "-s") != 0
+		&& strcmp(argv[i], "-?") != 0
 		// && strcmp(argv[i], "-p") != 0
 		// && strcmp(argv[i], "-r") != 0
 		// && strcmp(argv[i], "-T") != 0
@@ -153,6 +198,7 @@ void init_request(t_request *request) {
 	request->reverse_hostname = NULL;
 	// Allocate and set flags
 	request->flags = malloc(sizeof(t_ping_flags));
+	request->flags->verbose = 0;
 	request->flags->interval = 1;
 	request->flags->ttl = 46;
 	request->flags->ip_timestamp = 0;
