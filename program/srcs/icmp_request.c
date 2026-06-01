@@ -205,7 +205,7 @@ void ping_cycle(t_request *request, struct sockaddr_in *sock_address) {
 				request->target_ip,
 				stats->sequence,
 				request->flags->ttl,
-				stats->duration); // ping response time
+				stats->duration);	
 		}
 		else {
 			printf("%d bytes from %s: icmp_seq=%d ttl=%d time=%.2f ms\n", 
@@ -213,7 +213,7 @@ void ping_cycle(t_request *request, struct sockaddr_in *sock_address) {
 				request->target_ip,
 				stats->sequence,
 				request->flags->ttl,
-				stats->duration); // ping response time
+				stats->duration);
 		}
 		sleep(request->flags->interval);
 		stats->sequence++;
@@ -230,14 +230,14 @@ void ping_cycle(t_request *request, struct sockaddr_in *sock_address) {
 		stats->avg = 0;
 
 	close(sockfd);
+	free(sock_address);
 
 	free(packet);
 	free(receptor);
-	free_request(request);
 	
 	print_statistics(request, stats);
+	free_request(request);
 	free(stats);
-
 }
 
 // Make a ping request
