@@ -32,6 +32,7 @@ char *dns_lookup(char *domain_name, struct sockaddr_in *sock_address) {
 		// printf("[FT_PING] Buffer string : %s\n", buf_string);
 		current = current->ai_next;
 	}
+	free(address);
 	char *result = strdup(buf_string);
 	return result;
 }
