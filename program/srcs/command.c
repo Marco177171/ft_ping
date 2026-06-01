@@ -162,6 +162,7 @@ void parse_flags(t_request *request, char **argv, int i) {
 		&& strcmp(argv[i], "-W") != 0
 		&& strcmp(argv[i], "-s") != 0
 		&& strcmp(argv[i], "-?") != 0
+		&& strcmp(argv[i], "-v") != 0
 		// && strcmp(argv[i], "-p") != 0
 		// && strcmp(argv[i], "-r") != 0
 		// && strcmp(argv[i], "-T") != 0
