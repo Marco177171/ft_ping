@@ -244,6 +244,11 @@ void parse_target(t_request *request, char *address_string) {
 void parse_command(t_request *request, char **argv) {
 	int i = 1;
 	while (argv[i]) {
+        if (!strcmp(argv[i], "-v") && !argv[i + 1]) {
+            printf("ping: usage error: Destination address required\n");
+            free_request(request);
+            exit(EXIT_FAILURE);
+        }
 		if (argv[i][0] == '-')
 			parse_flags(request, argv, i);
 		else if (!argv[i + 1])
